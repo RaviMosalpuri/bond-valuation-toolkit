@@ -1,5 +1,5 @@
 class Bond:
-    def __init__(self, face_value: float, coupon_rate: float, years_to_maturity: float, yield_to_maturity: float):
+    def __init__(self, face_value: float, coupon_rate: float, years_to_maturity: int, yield_to_maturity: float):
         """
         Initialize a bond.
         face_value: Principal repayment at maturity
@@ -13,4 +13,5 @@ class Bond:
         self.yield_to_maturity = yield_to_maturity
 
     def annual_coupon(self):
+        """Calculate annual coupon payment."""
         return self.face_value * self.coupon_rate
