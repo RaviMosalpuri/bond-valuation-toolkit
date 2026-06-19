@@ -1,0 +1,49 @@
+name: Python Code Coverage
+
+on:
+  pull_request:
+    branches:
+      - master
+      - main
+
+permissions:
+  contents: read
+  pull-requests: write # Required so v3.1 can comment on the PR
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Checkout your code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11' # Adjust to your Python version
+
+      # 3. Install your test runner and package dependencies
+      - name: Install dependencies
+        run: |
+          pip install pytest pytest-cov
+          # If you have a requirements file, uncomment below:
+          # pip install -r requirements.txt
+
+      # 4. Run tests and export XML (this is required by the action!)
+      - name: Run tests with pytest-cov
+        run: |
+          pytest --cov-report xml:coverage.xml --cov=.
+
+      # 5. Use the specific v3.1 Python Coverage action
+      - name: Publish Coverage Report
+        uses: orgoro/coverage@v3.1
+        with:
+          coverageFile: coverage.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+          # OPTIONAL: Configure your success/fail thresholds (values from 0.0 to 1.0)
+          thresholdAll: 0.80        # Fails the step if overall coverage is under 80%
+          thresholdNew: 0.90        # Fails if coverage on new files is under 90%
+          thresholdModified: 0.50   # Fails if coverage on modified files is under 50%
