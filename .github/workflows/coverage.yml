@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [ "main", "dev" ]
 
-# Elevated permissions so the coverage action can write comments back to your PRs
 permissions:
   contents: read
   pull-requests: write
@@ -20,34 +19,34 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Set up Python 3.10
-      uses: actions/setup-python@v5 # Upgraded to v5 for faster caching/stability
+      uses: actions/setup-python@v5
       with:
         python-version: "3.10"
         
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest pytest-cov # Added pytest-cov here
+        pip install flake8 pytest pytest-cov
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         
     - name: Lint with flake8
       run: |
-        # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
         
     - name: Test with pytest and generate coverage report
       env:
-        PYTHONPATH: ${{ github.workspace }} # Kept your working path solution!
+        PYTHONPATH: ${{ github.workspace }}
       run: |
-        # This runs your tests and generates the required XML mapping file
         pytest --cov-report xml:coverage.xml --cov=.
         
+    # The coverage action will now be skipped entirely on direct pushes, 
+    # but will run beautifully on Pull Requests.
     - name: Publish Python Coverage Report
+      if: github.event_name == 'pull_request' # <--- ADD THIS CONDITIONAL
       uses: orgoro/coverage@v3.1
       with:
         coverageFile: coverage.xml
         token: ${{ secrets.GITHUB_TOKEN }}
-        thresholdAll: 0.80       # Optional: Fails the build if overall coverage is under 80%
-        thresholdNew: 0.85       # Optional: Fails if new code lines are under 85% coverage
+        thresholdAll: 0.80
+        thresholdNew: 0.85
