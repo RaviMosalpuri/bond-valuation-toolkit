@@ -13,12 +13,3 @@ class YieldCurve:
     def interpolate(self, maturity):
         """Linear interpolation for yield at given maturity."""
         return np.interp(maturity, self.maturities, self.yields)
-
-    def plot(self):
-        plt.figure(figsize=(10, 6))
-        plt.plot(self.maturities, self.yields, marker='o')
-        plt.title('Yield Curve')
-        plt.xlabel('Maturity (Years)')
-        plt.ylabel('Yield (%)')
-        plt.grid()
-        plt.show()
